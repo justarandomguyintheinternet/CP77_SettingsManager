@@ -17,25 +17,31 @@ function ui.draw(pL)
         ImGui.Separator()
         ui.currentName = ImGui.InputTextWithHint("", "Preset Name", ui.currentName, 100)
         ImGui.SameLine()
-        if ImGui.Button("Add") then pL.GameSettings.ExportTo(tostring("presets/" .. ui.currentName .. ".lua")) end
+        if ImGui.Button("Add") then 
+            local name = ui.currentName
+            if name == "" then name = "New Preset" end
+            pL.GameSettings.ExportTo(tostring("presets/" .. name .. ".lua")) 
+        end
         ImGui.EndChild()
 
         for _, file in pairs(dir("presets")) do
-            ui.drawPreset(file, pL)
+            if file.name:match("^.+(%..+)$") == ".lua" then
+                ui.drawPreset(file, pL)
+            end
         end
 
         if pL.CPSinstalled then 
             pL.CPS.colorEnd(2)
         end
-
+        ImGui.End()
 	end
-    ImGui.End()
+
     if pL.CPSinstalled then pL.CPS:setThemeEnd() end
 end
 
 function ui.drawPreset(p, pL)
     if not p.deleted then
-        ImGui.BeginChild(p.name:match("(.+)%..+$"), 300, 80, true)
+        ImGui.BeginChild(p.name, 300, 80, true)
         ImGui.Text(p.name:match("(.+)%..+$"))
         ImGui.Separator()
 
