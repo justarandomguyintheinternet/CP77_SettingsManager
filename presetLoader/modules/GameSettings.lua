@@ -346,6 +346,9 @@ end
 function GameSettings.Import(settings)
 	for setting, value in pairs(settings) do
 		GameSettings.Set(setting, value)
+		if GameSettings.NeedsConfirmation() then
+        	GameSettings.Confirm()
+    	end
 	end
 end
 
