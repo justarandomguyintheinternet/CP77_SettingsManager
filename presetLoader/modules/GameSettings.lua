@@ -285,40 +285,43 @@ function GameSettings.Export(isPreGame)
 	return module.exportVars(isPreGame)
 end
 
-function GameSettings.ExportTo(exportPath, isPreGame)
+function GameSettings.ExportTo(exportPath, isPreGame, keyBinds)
 	local output = {}
+	local isPreGame = GetSingleton('inkMenuScenario'):GetSystemRequestsHandler():IsPreGame()
 
 	local vars = module.exportVars(isPreGame)
 
 	for _, var in ipairs(vars) do
-		local value = var.value
-		local options
+		if (not keyBinds and (var.path:match('^/key_bindings/') == nil)) or keyBinds then 
+			local value = var.value
+			local options
 
-		if type(value) == 'string' then
-			value = string.format('%q', value)
-		end
-
-		if var.options and #var.options > 1 then
-			options = {}
-
-			for i, option in ipairs(var.options) do
-				--if type(option) == 'string' then
-				--	option = string.format('%q', option)
-				--end
-
-				options[i] = option
+			if type(value) == 'string' then
+				value = string.format('%q', value)
 			end
 
-			options = ' -- ' .. table.concat(options, ' | ')
-		elseif var.min then
-			if module.isIntType(var.type) then
-				options = (' -- %d to %d / %d'):format(var.min, var.max, var.step)
-			else
-				options = (' -- %.2f to %.2f / %.2f'):format(var.min, var.max, var.step)
-			end
-		end
+			if var.options and #var.options > 1 then
+				options = {}
 
-		table.insert(output, ('  ["%s"] = %s,%s'):format(var.path, value, options or ''))
+				for i, option in ipairs(var.options) do
+					--if type(option) == 'string' then
+					--	option = string.format('%q', option)
+					--end
+
+					options[i] = option
+				end
+
+				options = ' -- ' .. table.concat(options, ' | ')
+			elseif var.min then
+				if module.isIntType(var.type) then
+					options = (' -- %d to %d / %d'):format(var.min, var.max, var.step)
+				else
+					options = (' -- %.2f to %.2f / %.2f'):format(var.min, var.max, var.step)
+				end
+			end
+
+			table.insert(output, ('  ["%s"] = %s,%s'):format(var.path, value, options or ''))
+		end
 	end
 
 	table.insert(output, 1, '{')
@@ -361,7 +364,7 @@ function GameSettings.ImportFrom(importPath)
 end
 
 function GameSettings.DumpVars(isPreGame)
-	return GameSettings.ExportTo(nil, isPreGame)
+	return GameSettings.ExportTo(nil, isPreGame, true)
 end
 
 function GameSettings.PrintVars(isPreGame)

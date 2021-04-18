@@ -1,6 +1,7 @@
 ui = {
     currentName = "New preset",
-    color = {0, 50, 255}
+    color = {0, 50, 255},
+    keyBinds = false
 }
 
 function ui.draw(pL)
@@ -12,7 +13,7 @@ function ui.draw(pL)
             pL.CPS.colorBegin("Separator", ui.color)
             pL.CPS.colorBegin("Border", ui.color)
         end
-        ImGui.BeginChild("addNew", 300, 60, true)
+        ImGui.BeginChild("addNew", 300, 80, true)
         ImGui.Text("Add new preset with current settings")
         ImGui.Separator()
         ui.currentName = ImGui.InputTextWithHint("", "Preset Name", ui.currentName, 100)
@@ -20,8 +21,9 @@ function ui.draw(pL)
         if ImGui.Button("Add") then 
             local name = ui.currentName
             if name == "" then name = "New Preset" end
-            pL.GameSettings.ExportTo(tostring("presets/" .. name .. ".lua")) 
+            pL.GameSettings.ExportTo(tostring("presets/" .. name .. ".lua"), false, ui.keyBinds) 
         end
+        ui.keyBinds = ImGui.Checkbox("Save Keybinds", ui.keyBinds)
         ImGui.EndChild()
 
         for _, file in pairs(dir("presets")) do
